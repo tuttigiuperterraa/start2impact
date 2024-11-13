@@ -89,6 +89,85 @@ explained_generosity float,
 explained_perception_of_corruption float,
 dystopia_plus_residual float
 );
+
+DROP TABLE food;
+--- Tabella prodotti alimentari
+CREATE TABLE food(
+food_domain varchar(255),
+area varchar(255),
+item varchar(255),
+years int,
+food_value float
+);
 */
 
-SELECT * FROM global_var;
+-- Visualizziamo i 10 paesi con maggior produzione di co2
+SELECT country_name, urban_population, density, co2 
+FROM global_var
+WHERE co2 IS NOT NULL
+ORDER BY co2 DESC
+LIMIT 10;
+
+
+-- Visualizziamo i 10 paesi con la popolazione più alta
+SELECT country_name, urban_population, density, co2 
+FROM global_var
+WHERE urban_population IS NOT NULL
+ORDER BY urban_population DESC
+LIMIT 10;
+
+-- è possibile osservare come Cina, India e USA siano le prime in termini di popolazione e produzione di co2.
+-- questo potrebbe suggerire una correlazione tra queste due grandezze.
+-- la non completa sovrapposizione delle due classifiche suggerisce però che la produzione di co2 sia influenzata 
+-- anche da altri fattori (?)
+
+-- Visualizziamo i 10 paesi con maggiori nascite
+SELECT country_name, birth_rate, fertility_rate, infant_mortality, life_expectancy, maternal_mortality, out_of_pocket_health_expenditure_p 
+FROM global_var
+WHERE birth_rate IS NOT NULL
+ORDER BY birth_rate DESC
+LIMIT 10; 
+
+-- Visualizziamo i 10 paesi con maggiori morti infantili
+SELECT country_name, birth_rate, fertility_rate, infant_mortality, life_expectancy, maternal_mortality, out_of_pocket_health_expenditure_p 
+FROM global_var
+WHERE infant_mortality IS NOT NULL
+ORDER BY infant_mortality DESC
+LIMIT 10; 
+
+-- Visualizziamo i 10 paesi con maggiore fertility_rate
+SELECT country_name, birth_rate, fertility_rate, infant_mortality, life_expectancy, maternal_mortality, out_of_pocket_health_expenditure_p 
+FROM global_var
+WHERE fertility_rate IS NOT NULL
+ORDER BY fertility_rate DESC
+LIMIT 10; 
+
+-- Visualizziamo i 10 paesi con maggiore maternal_mortality
+SELECT country_name, birth_rate, fertility_rate, infant_mortality, life_expectancy, maternal_mortality, out_of_pocket_health_expenditure_p 
+FROM global_var
+WHERE maternal_mortality IS NOT NULL
+ORDER BY maternal_mortality DESC
+LIMIT 10;
+
+-- Visualizziamo i 10 paesi con maggiore life_expectance
+SELECT country_name, birth_rate, fertility_rate, infant_mortality, life_expectancy, maternal_mortality, out_of_pocket_health_expenditure_p 
+FROM global_var
+WHERE life_expectancy IS NOT NULL
+ORDER BY life_expectancy DESC
+LIMIT 10; 
+
+-- Visualizziamo i 10 paesi dove gli abitanti spendono di più per la sanità
+SELECT 
+    country_name, 
+    birth_rate, 
+    fertility_rate, 
+    infant_mortality, 
+    life_expectancy, 
+    maternal_mortality, 
+    out_of_pocket_health_expenditure_p
+FROM global_var
+WHERE CAST(REPLACE(out_of_pocket_health_expenditure_p, '%', '') AS float) IS NOT NULL
+ORDER BY 
+    CAST(REPLACE(out_of_pocket_health_expenditure_p, '%', '') AS float) DESC,  -- Rimuove % e ordina numericamente
+    life_expectancy DESC  -- Se desideri anche ordinare per life_expectancy come secondo criterio
+LIMIT 10; 
