@@ -66,4 +66,27 @@ safety_security float,
 ongoing_conflict float,
 militarian float
 );
+
+--- Tabella happyness
+CREATE TABLE happiness(
+hap_country varchar(30),
+hap_ladder_score float,
+st_error_ladder float,
+upperwhisker float,
+lowerwhisker float,
+logged_gdp_per_capita float,
+social_support float,
+health_life_expectancy float,
+freedom_to_make_life_choise float,
+generosity float,
+perception_of_corruption float,
+ladder_score_dystopia float,
+explained_logged_gdp_per_capita float,
+explained_social_support float,
+explained_health_life_expectancy float,
+explained_freedom_to_make_life_choise float,
+explained_generosity float,
+explained_perception_of_corruption float,
+dystopia_plus_residual float
+);
 */
