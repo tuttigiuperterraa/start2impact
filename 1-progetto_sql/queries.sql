@@ -128,6 +128,12 @@ LIMIT 5;	-- China
 
 --- Visualizziamo gli alimenti che inquinano di più
 
+--- Visualizza i paesi che producono maggiormente i 3 principali alimenti inquinanti nei 5 paesi
+
+--- Percentuale di co2 prodotta dai 3 principali alimenti inquinanti nei 5 paesi
+
+--- Andamento produzione di manzo nei 5 paesi nel tempo 
+--https://www.fao.org/faostat/en/#data/QCL
 
 
 
