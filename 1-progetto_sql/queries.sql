@@ -69,7 +69,7 @@ militarian float
 
 --- Tabella happyness
 CREATE TABLE happiness(
-hap_country varchar(30),
+hap_country varchar(30) PRIMARY KEY,
 hap_ladder_score float,
 st_error_ladder float,
 upperwhisker float,
@@ -90,3 +90,5 @@ explained_perception_of_corruption float,
 dystopia_plus_residual float
 );
 */
+
+SELECT * FROM global_var;
