@@ -54,4 +54,16 @@ students_per_staff float,
 international_student_p varchar(10),
 female_male varchar(30)
 );
+
+
+--- Tabella peace
+CREATE TABLE peace(
+peace_country varchar(255),
+peace_country_abbr varchar(3),
+peace_year int,
+peace_overall_score float,
+safety_security float,
+ongoing_conflict float,
+militarian float
+);
 */
