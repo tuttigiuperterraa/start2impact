@@ -5,6 +5,7 @@ CREATE DATABASE progetto_sqldb;
 
 -- Costruzione delle tabelle 
 
+DROP TABLE global_var;
 --- Tabella global_var
 CREATE TABLE global_var(
 country_name varchar(255) not null unique PRIMARY KEY,
@@ -16,7 +17,7 @@ armed_forces_size float,
 birth_rate float,
 calling_code int,
 capital varchar(255),
-co2 int,
+co2 bigint,
 cpi float,
 cpi_change_p varchar(255),
 currency varchar(255),
@@ -116,12 +117,12 @@ kgco2_per_kgprodotto float
 );
 */
 
-
+--https://ourworldindata.org/grapher/annual-co2-emissions-per-country?tab=table
 --- Visualizziamo i 5 paesi con maggior produzione di co2
-SELECT country_name, population, density, co2_tons
+SELECT country_name, population, density, co2 AS co2_tons
 FROM global_var
-WHERE co2_tons IS NOT NULL
-ORDER BY co2_tons DESC
+WHERE co2 IS NOT NULL
+ORDER BY co2 DESC
 LIMIT 5;	-- China
 			-- USA
 			-- India
@@ -149,73 +150,86 @@ LIMIT 5;
 					-- Coffee
 
 
+
 --- CHINA
 WITH china_food_co2
 AS(
 	--%co2 da beef
-	SELECT area, 'Beef (beef herd)' AS item, SUM(food_value) AS tons
+	SELECT area, 'Beef (beef herd)' AS item, food_value AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'China' 
-	    AND item ~* 'buffalo'  --rende case-insensitive la ricerca
-	    AND item !~* 'milk'
+	    AND item ~* 'cattle'  --rende case-insensitive la ricerca
+	    AND item ~* 'meat'
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da chocolate
-	SELECT area, 'Dark Chocolate' AS item, SUM(food_value) AS tons
+	SELECT area, 'Dark Chocolate' AS item, food_value AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'China' 
 	    AND item ~* 'cocoa'  --rende case-insensitive la ricerca
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da lamb
-	SELECT area, 'Lamb & Mutton' AS item, SUM(food_value) AS tons
+	SELECT area, 'Lamb & Mutton' AS item, food_value  AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'China' 
-	    AND item ~* 'lamb'  --rende case-insensitive la ricerca
+	    AND item ~* 'sheep'
+		AND item ~* 'meat'--rende case-insensitive la ricerca
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da beef milk
-	SELECT area, 'Beef (dairy herd)' AS item, SUM(food_value) AS tons
+	SELECT area, 'Beef (dairy herd)' AS item, food_value  AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'China' 
-	    AND item ~* 'buffalo'  --rende case-insensitive la ricerca
+	    AND item ~* 'cattle'  --rende case-insensitive la ricerca
 	    AND item ~* 'milk'
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da coffee
-	SELECT area, 'Coffee' AS item, SUM(food_value) AS tons
+	SELECT area, 'Coffee' AS item, food_value  AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'China' 
 	    AND item ~* 'coffee'  --rende case-insensitive la ricerca
 		AND years = 2022
-	GROUP BY area
 )
-SELECT cfc.area, cfc.item, tons, co2_per_kg, (tons * 1000 * co2_per_kg) / 1000 AS co2_tot_tons
+SELECT 
+	cfc.area, 
+	cfc.item, 
+	tons_item, 
+	fc.co2_per_kg_per_item AS tons_co2_per_tons_of_item,
+	tons_item * fc.co2_per_kg_per_item AS tons_co2_by_item,
+	co2_china.co2 * 1000 AS tons_co2_tot_china,
+	(((tons_item * fc.co2_per_kg_per_item) / (co2_china.co2 * 1000)) * 100) AS impact
 FROM china_food_co2 AS cfc
 INNER JOIN(
-	SELECT prodotto, kgco2_per_kgprodotto AS co2_per_kg
+	SELECT 
+		prodotto, 
+		kgco2_per_kgprodotto AS co2_per_kg_per_item
 	FROM food_co2
-	ORDER BY co2_per_kg DESC
+	ORDER BY co2_per_kg_per_item DESC
 	LIMIT 5
 ) fc
-ON cfc.item = fc.prodotto;
+	ON cfc.item = fc.prodotto
+INNER JOIN(
+	SELECT country_name,  co2 
+	FROM global_var
+	WHERE country_name LIKE 'China'
+) co2_china
+	ON cfc.area = co2_china.country_name
+ORDER BY impact DESC;
 
 
 --- USA
