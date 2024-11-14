@@ -45,6 +45,11 @@ latitude varchar(255),
 longitude varchar(255)
 );
 
+UPDATE global_var
+SET country_name = 'United States of America'
+WHERE country_name LIKE 'United States';
+
+
 --- Tabella university
 CREATE TABLE university(
 uni_rank varchar(30),
@@ -101,6 +106,11 @@ item varchar(255),
 years int,
 food_value float
 );
+
+
+UPDATE food
+SET area = 'Russia'
+WHERE area LIKE 'Russian Federation'
 
 
 CREATE TABLE continents(
@@ -231,281 +241,325 @@ INNER JOIN(
 	ON cfc.area = co2_china.country_name
 ORDER BY impact DESC;
 
-
 --- USA
 WITH usa_food_co2
 AS(
 	--%co2 da beef
-	SELECT area, 'Beef (beef herd)' AS item, SUM(food_value) AS tons
+	SELECT area, 'Beef (beef herd)' AS item, food_value AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'United States of America' 
-	    AND item ~* 'buffalo'  --rende case-insensitive la ricerca
-	    AND item !~* 'milk'
+	    AND item ~* 'cattle'  --rende case-insensitive la ricerca
+	    AND item ~* 'meat'
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da chocolate
-	SELECT area, 'Dark Chocolate' AS item, SUM(food_value) AS tons
+	SELECT area, 'Dark Chocolate' AS item, food_value AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'United States of America' 
 	    AND item ~* 'cocoa'  --rende case-insensitive la ricerca
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da lamb
-	SELECT area, 'Lamb & Mutton' AS item, SUM(food_value) AS tons
+	SELECT area, 'Lamb & Mutton' AS item, food_value  AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'United States of America' 
-	    AND item ~* 'lamb'  --rende case-insensitive la ricerca
+	    AND item ~* 'sheep'
+		AND item ~* 'meat'--rende case-insensitive la ricerca
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da beef milk
-	SELECT area, 'Beef (dairy herd)' AS item, SUM(food_value) AS tons
+	SELECT area, 'Beef (dairy herd)' AS item, food_value  AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'United States of America' 
-	    AND item ~* 'buffalo'  --rende case-insensitive la ricerca
+	    AND item ~* 'cattle'  --rende case-insensitive la ricerca
 	    AND item ~* 'milk'
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da coffee
-	SELECT area, 'Coffee' AS item, SUM(food_value) AS tons
+	SELECT area, 'Coffee' AS item, food_value  AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'United States of America' 
 	    AND item ~* 'coffee'  --rende case-insensitive la ricerca
 		AND years = 2022
-	GROUP BY area
 )
-SELECT ufc.area, ufc.item, ufc.tons, fc.co2_per_kg, (ufc.tons * 1000 * fc.co2_per_kg) / 1000 AS co2_tot_tons
+SELECT 
+	ufc.area, 
+	ufc.item, 
+	tons_item, 
+	fc.co2_per_kg_per_item AS tons_co2_per_tons_of_item,
+	tons_item * fc.co2_per_kg_per_item AS tons_co2_by_item,
+	co2_usa.co2 * 1000 AS tons_co2_tot_usa,
+	(((tons_item * fc.co2_per_kg_per_item) / (co2_usa.co2 * 1000)) * 100) AS impact
 FROM usa_food_co2 AS ufc
 INNER JOIN(
-	SELECT prodotto, kgco2_per_kgprodotto AS co2_per_kg
+	SELECT 
+		prodotto, 
+		kgco2_per_kgprodotto AS co2_per_kg_per_item
 	FROM food_co2
-	ORDER BY co2_per_kg DESC
+	ORDER BY co2_per_kg_per_item DESC
 	LIMIT 5
 ) fc
-ON ufc.item = fc.prodotto;
-
+	ON ufc.item = fc.prodotto
+INNER JOIN(
+	SELECT country_name,  co2 
+	FROM global_var
+	WHERE country_name LIKE 'United States of America'
+) co2_usa
+	ON ufc.area = co2_usa.country_name
+ORDER BY impact DESC;
 
 --- INDIA
 WITH india_food_co2
 AS(
 	--%co2 da beef
-	SELECT area, 'Beef (beef herd)' AS item, SUM(food_value) AS tons
+	SELECT area, 'Beef (beef herd)' AS item, food_value AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'India' 
-	    AND item ~* 'buffalo'  --rende case-insensitive la ricerca
-	    AND item !~* 'milk'
+	    AND item ~* 'cattle'  --rende case-insensitive la ricerca
+	    AND item ~* 'meat'
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da chocolate
-	SELECT area, 'Dark Chocolate' AS item, SUM(food_value) AS tons
+	SELECT area, 'Dark Chocolate' AS item, food_value AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'India' 
 	    AND item ~* 'cocoa'  --rende case-insensitive la ricerca
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da lamb
-	SELECT area, 'Lamb & Mutton' AS item, SUM(food_value) AS tons
+	SELECT area, 'Lamb & Mutton' AS item, food_value  AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'India' 
-	    AND item ~* 'lamb'  --rende case-insensitive la ricerca
+	    AND item ~* 'sheep'
+		AND item ~* 'meat'--rende case-insensitive la ricerca
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da beef milk
-	SELECT area, 'Beef (dairy herd)' AS item, SUM(food_value) AS tons
+	SELECT area, 'Beef (dairy herd)' AS item, food_value  AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'India' 
-	    AND item ~* 'buffalo'  --rende case-insensitive la ricerca
+	    AND item ~* 'cattle'  --rende case-insensitive la ricerca
 	    AND item ~* 'milk'
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da coffee
-	SELECT area, 'Coffee' AS item, SUM(food_value) AS tons
+	SELECT area, 'Coffee' AS item, food_value  AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'India' 
 	    AND item ~* 'coffee'  --rende case-insensitive la ricerca
 		AND years = 2022
-	GROUP BY area
 )
-SELECT ifc.area, ifc.item, ifc.tons, fc.co2_per_kg, (ifc.tons * 1000 * fc.co2_per_kg) / 1000 AS co2_tot_tons
-FROM india_food_co2 AS ifc
+SELECT 
+	cfc.area, 
+	cfc.item, 
+	tons_item, 
+	fc.co2_per_kg_per_item AS tons_co2_per_tons_of_item,
+	tons_item * fc.co2_per_kg_per_item AS tons_co2_by_item,
+	co2_india.co2 * 1000 AS tons_co2_tot_india,
+	(((tons_item * fc.co2_per_kg_per_item) / (co2_india.co2 * 1000)) * 100) AS impact
+FROM india_food_co2 AS cfc
 INNER JOIN(
-	SELECT prodotto, kgco2_per_kgprodotto AS co2_per_kg
+	SELECT 
+		prodotto, 
+		kgco2_per_kgprodotto AS co2_per_kg_per_item
 	FROM food_co2
-	ORDER BY co2_per_kg DESC
+	ORDER BY co2_per_kg_per_item DESC
 	LIMIT 5
 ) fc
-ON ifc.item = fc.prodotto;
+	ON cfc.item = fc.prodotto
+INNER JOIN(
+	SELECT country_name,  co2 
+	FROM global_var
+	WHERE country_name LIKE 'India'
+) co2_india
+	ON cfc.area = co2_india.country_name
+ORDER BY impact DESC;
 
-
---- RUSSIA
+-- RUSSIA
 WITH russia_food_co2
 AS(
 	--%co2 da beef
-	SELECT area, 'Beef (beef herd)' AS item, SUM(food_value) AS tons
+	SELECT area, 'Beef (beef herd)' AS item, food_value AS tons_item
 	FROM food
 	WHERE 
-	    area LIKE 'Russian Federation' 
-	    AND item ~* 'buffalo'  --rende case-insensitive la ricerca
-	    AND item !~* 'milk'
+	    area LIKE 'Russia' 
+	    AND item ~* 'cattle'  --rende case-insensitive la ricerca
+	    AND item ~* 'meat'
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da chocolate
-	SELECT area, 'Dark Chocolate' AS item, SUM(food_value) AS tons
+	SELECT area, 'Dark Chocolate' AS item, food_value AS tons_item
 	FROM food
 	WHERE 
-	    area LIKE 'Russian Federation' 
+	    area LIKE 'Russia' 
 	    AND item ~* 'cocoa'  --rende case-insensitive la ricerca
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da lamb
-	SELECT area, 'Lamb & Mutton' AS item, SUM(food_value) AS tons
+	SELECT area, 'Lamb & Mutton' AS item, food_value  AS tons_item
 	FROM food
 	WHERE 
-	    area LIKE 'Russian Federation' 
-	    AND item ~* 'lamb'  --rende case-insensitive la ricerca
+	    area LIKE 'Russia' 
+	    AND item ~* 'sheep'
+		AND item ~* 'meat'--rende case-insensitive la ricerca
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da beef milk
-	SELECT area, 'Beef (dairy herd)' AS item, SUM(food_value) AS tons
+	SELECT area, 'Beef (dairy herd)' AS item, food_value  AS tons_item
 	FROM food
 	WHERE 
-	    area LIKE 'Russian Federation' 
-	    AND item ~* 'buffalo'  --rende case-insensitive la ricerca
+	    area LIKE 'Russia' 
+	    AND item ~* 'cattle'  --rende case-insensitive la ricerca
 	    AND item ~* 'milk'
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da coffee
-	SELECT area, 'Coffee' AS item, SUM(food_value) AS tons
+	SELECT area, 'Coffee' AS item, food_value  AS tons_item
 	FROM food
 	WHERE 
-	    area LIKE 'Russian Federation' 
+	    area LIKE 'Russia' 
 	    AND item ~* 'coffee'  --rende case-insensitive la ricerca
 		AND years = 2022
-	GROUP BY area
 )
-SELECT rfc.area, rfc.item, rfc.tons, fc.co2_per_kg, (rfc.tons * 1000 * fc.co2_per_kg) / 1000 AS co2_tot_tons
-FROM russia_food_co2 AS rfc
+SELECT 
+	cfc.area, 
+	cfc.item, 
+	tons_item, 
+	fc.co2_per_kg_per_item AS tons_co2_per_tons_of_item,
+	tons_item * fc.co2_per_kg_per_item AS tons_co2_by_item,
+	co2_russia.co2 * 1000 AS tons_co2_tot_russia,
+	(((tons_item * fc.co2_per_kg_per_item) / (co2_russia.co2 * 1000)) * 100) AS impact
+FROM russia_food_co2 AS cfc
 INNER JOIN(
-	SELECT prodotto, kgco2_per_kgprodotto AS co2_per_kg
+	SELECT 
+		prodotto, 
+		kgco2_per_kgprodotto AS co2_per_kg_per_item
 	FROM food_co2
-	ORDER BY co2_per_kg DESC
+	ORDER BY co2_per_kg_per_item DESC
 	LIMIT 5
 ) fc
-ON rfc.item = fc.prodotto;
-
+	ON cfc.item = fc.prodotto
+INNER JOIN(
+	SELECT country_name,  co2 
+	FROM global_var
+	WHERE country_name LIKE 'Russia'
+) co2_russia
+	ON cfc.area = co2_russia.country_name
+ORDER BY impact DESC;
 
 --- JAPAN
 WITH japan_food_co2
 AS(
 	--%co2 da beef
-	SELECT area, 'Beef (beef herd)' AS item, SUM(food_value) AS tons
+	SELECT area, 'Beef (beef herd)' AS item, food_value AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'Japan' 
-	    AND item ~* 'buffalo'  --rende case-insensitive la ricerca
-	    AND item !~* 'milk'
+	    AND item ~* 'cattle'  --rende case-insensitive la ricerca
+	    AND item ~* 'meat'
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da chocolate
-	SELECT area, 'Dark Chocolate' AS item, SUM(food_value) AS tons
+	SELECT area, 'Dark Chocolate' AS item, food_value AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'Japan' 
 	    AND item ~* 'cocoa'  --rende case-insensitive la ricerca
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da lamb
-	SELECT area, 'Lamb & Mutton' AS item, SUM(food_value) AS tons
+	SELECT area, 'Lamb & Mutton' AS item, food_value  AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'Japan' 
-	    AND item ~* 'lamb'  --rende case-insensitive la ricerca
+	    AND item ~* 'sheep'
+		AND item ~* 'meat'--rende case-insensitive la ricerca
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da beef milk
-	SELECT area, 'Beef (dairy herd)' AS item, SUM(food_value) AS tons
+	SELECT area, 'Beef (dairy herd)' AS item, food_value  AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'Japan' 
-	    AND item ~* 'buffalo'  --rende case-insensitive la ricerca
+	    AND item ~* 'cattle'  --rende case-insensitive la ricerca
 	    AND item ~* 'milk'
 		AND years = 2022
-	GROUP BY area
 
 	UNION ALL
 	
 	--%co2 da coffee
-	SELECT area, 'Coffee' AS item, SUM(food_value) AS tons
+	SELECT area, 'Coffee' AS item, food_value  AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'Japan' 
 	    AND item ~* 'coffee'  --rende case-insensitive la ricerca
 		AND years = 2022
-	GROUP BY area
 )
-SELECT jfc.area, jfc.item, jfc.tons, fc.co2_per_kg, (jfc.tons * 1000 * fc.co2_per_kg) / 1000 AS co2_tot_tons
-FROM japan_food_co2 AS jfc
+SELECT 
+	cfc.area, 
+	cfc.item, 
+	tons_item, 
+	fc.co2_per_kg_per_item AS tons_co2_per_tons_of_item,
+	tons_item * fc.co2_per_kg_per_item AS tons_co2_by_item,
+	co2_japan.co2 * 1000 AS tons_co2_tot_japan,
+	(((tons_item * fc.co2_per_kg_per_item) / (co2_japan.co2 * 1000)) * 100) AS impact
+FROM japan_food_co2 AS cfc
 INNER JOIN(
-	SELECT prodotto, kgco2_per_kgprodotto AS co2_per_kg
+	SELECT 
+		prodotto, 
+		kgco2_per_kgprodotto AS co2_per_kg_per_item
 	FROM food_co2
-	ORDER BY co2_per_kg DESC
+	ORDER BY co2_per_kg_per_item DESC
 	LIMIT 5
 ) fc
-ON jfc.item = fc.prodotto;
+	ON cfc.item = fc.prodotto
+INNER JOIN(
+	SELECT country_name,  co2 
+	FROM global_var
+	WHERE country_name LIKE 'Japan'
+) co2_japan
+	ON cfc.area = co2_japan.country_name
+ORDER BY impact DESC;
 
 
 
