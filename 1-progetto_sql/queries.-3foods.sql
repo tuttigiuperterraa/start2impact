@@ -96,7 +96,7 @@ explained_perception_of_corruption float,
 dystopia_plus_residual float
 );
 
-
+DROP TABLE food;
 --- Tabella prodotti alimentari
 CREATE TABLE food(
 food_domain varchar(255),
@@ -106,7 +106,6 @@ item varchar(255),
 years int,
 food_value float
 );
-
 
 UPDATE food
 SET area = 'Russia'
@@ -152,13 +151,10 @@ LIMIT 10;
 SELECT prodotto, kgco2_per_kgprodotto AS co2
 FROM food_co2
 ORDER BY co2 DESC
-LIMIT 5;
+LIMIT 3;
 					-- Beef
 				    -- Dark chocolate
 					-- Lamb & Mutton
-					-- Beef dairy
-					-- Coffee
-
 
 
 --- CHINA
@@ -193,47 +189,26 @@ AS(
 	    AND item ~* 'sheep'
 		AND item ~* 'meat'--rende case-insensitive la ricerca
 		AND years = 2022
-
-	UNION ALL
-	
-	--%co2 da beef milk
-	SELECT area, 'Beef (dairy herd)' AS item, food_value  AS tons_item
-	FROM food
-	WHERE 
-	    area LIKE 'China' 
-	    AND item ~* 'cattle'  --rende case-insensitive la ricerca
-	    AND item ~* 'milk'
-		AND years = 2022
-
-	UNION ALL
-	
-	--%co2 da coffee
-	SELECT area, 'Coffee' AS item, food_value  AS tons_item
-	FROM food
-	WHERE 
-	    area LIKE 'China' 
-	    AND item ~* 'coffee'  --rende case-insensitive la ricerca
-		AND years = 2022
 )
 SELECT 
 	cfc.area, 
-	cfc.item, 
+	prodotto, 
 	tons_item, 
 	fc.co2_per_kg_per_item AS tons_co2_per_tons_of_item,
 	tons_item * fc.co2_per_kg_per_item AS tons_co2_by_item,
 	co2_china.co2 * 1000 AS tons_co2_tot_china,
 	(((tons_item * fc.co2_per_kg_per_item) / (co2_china.co2 * 1000)) * 100) AS impact
 FROM china_food_co2 AS cfc
-INNER JOIN(
+RIGHT JOIN(
 	SELECT 
 		prodotto, 
 		kgco2_per_kgprodotto AS co2_per_kg_per_item
 	FROM food_co2
 	ORDER BY co2_per_kg_per_item DESC
-	LIMIT 5
+	LIMIT 3
 ) fc
 	ON cfc.item = fc.prodotto
-INNER JOIN(
+LEFT JOIN(
 	SELECT country_name,  co2 
 	FROM global_var
 	WHERE country_name LIKE 'China'
@@ -273,47 +248,26 @@ AS(
 	    AND item ~* 'sheep'
 		AND item ~* 'meat'--rende case-insensitive la ricerca
 		AND years = 2022
-
-	UNION ALL
-	
-	--%co2 da beef milk
-	SELECT area, 'Beef (dairy herd)' AS item, food_value  AS tons_item
-	FROM food
-	WHERE 
-	    area LIKE 'United States of America' 
-	    AND item ~* 'cattle'  --rende case-insensitive la ricerca
-	    AND item ~* 'milk'
-		AND years = 2022
-
-	UNION ALL
-	
-	--%co2 da coffee
-	SELECT area, 'Coffee' AS item, food_value  AS tons_item
-	FROM food
-	WHERE 
-	    area LIKE 'United States of America' 
-	    AND item ~* 'coffee'  --rende case-insensitive la ricerca
-		AND years = 2022
 )
 SELECT 
 	ufc.area, 
-	ufc.item, 
+	prodotto, 
 	tons_item, 
 	fc.co2_per_kg_per_item AS tons_co2_per_tons_of_item,
 	tons_item * fc.co2_per_kg_per_item AS tons_co2_by_item,
 	co2_usa.co2 * 1000 AS tons_co2_tot_usa,
 	(((tons_item * fc.co2_per_kg_per_item) / (co2_usa.co2 * 1000)) * 100) AS impact
 FROM usa_food_co2 AS ufc
-INNER JOIN(
+RIGHT JOIN(
 	SELECT 
 		prodotto, 
 		kgco2_per_kgprodotto AS co2_per_kg_per_item
 	FROM food_co2
 	ORDER BY co2_per_kg_per_item DESC
-	LIMIT 5
+	LIMIT 3
 ) fc
 	ON ufc.item = fc.prodotto
-INNER JOIN(
+LEFT JOIN(
 	SELECT country_name,  co2 
 	FROM global_var
 	WHERE country_name LIKE 'United States of America'
@@ -353,47 +307,26 @@ AS(
 	    AND item ~* 'sheep'
 		AND item ~* 'meat'--rende case-insensitive la ricerca
 		AND years = 2022
-
-	UNION ALL
-	
-	--%co2 da beef milk
-	SELECT area, 'Beef (dairy herd)' AS item, food_value  AS tons_item
-	FROM food
-	WHERE 
-	    area LIKE 'India' 
-	    AND item ~* 'cattle'  --rende case-insensitive la ricerca
-	    AND item ~* 'milk'
-		AND years = 2022
-
-	UNION ALL
-	
-	--%co2 da coffee
-	SELECT area, 'Coffee' AS item, food_value  AS tons_item
-	FROM food
-	WHERE 
-	    area LIKE 'India' 
-	    AND item ~* 'coffee'  --rende case-insensitive la ricerca
-		AND years = 2022
 )
 SELECT 
 	cfc.area, 
-	cfc.item, 
+	prodotto, 
 	tons_item, 
 	fc.co2_per_kg_per_item AS tons_co2_per_tons_of_item,
 	tons_item * fc.co2_per_kg_per_item AS tons_co2_by_item,
 	co2_india.co2 * 1000 AS tons_co2_tot_india,
 	(((tons_item * fc.co2_per_kg_per_item) / (co2_india.co2 * 1000)) * 100) AS impact
 FROM india_food_co2 AS cfc
-INNER JOIN(
+RIGHT JOIN(
 	SELECT 
 		prodotto, 
 		kgco2_per_kgprodotto AS co2_per_kg_per_item
 	FROM food_co2
 	ORDER BY co2_per_kg_per_item DESC
-	LIMIT 5
+	LIMIT 3
 ) fc
 	ON cfc.item = fc.prodotto
-INNER JOIN(
+LEFT JOIN(
 	SELECT country_name,  co2 
 	FROM global_var
 	WHERE country_name LIKE 'India'
@@ -433,47 +366,26 @@ AS(
 	    AND item ~* 'sheep'
 		AND item ~* 'meat'--rende case-insensitive la ricerca
 		AND years = 2022
-
-	UNION ALL
-	
-	--%co2 da beef milk
-	SELECT area, 'Beef (dairy herd)' AS item, food_value  AS tons_item
-	FROM food
-	WHERE 
-	    area LIKE 'Russia' 
-	    AND item ~* 'cattle'  --rende case-insensitive la ricerca
-	    AND item ~* 'milk'
-		AND years = 2022
-
-	UNION ALL
-	
-	--%co2 da coffee
-	SELECT area, 'Coffee' AS item, food_value  AS tons_item
-	FROM food
-	WHERE 
-	    area LIKE 'Russia' 
-	    AND item ~* 'coffee'  --rende case-insensitive la ricerca
-		AND years = 2022
 )
 SELECT 
 	cfc.area, 
-	cfc.item, 
+	prodotto, 
 	tons_item, 
 	fc.co2_per_kg_per_item AS tons_co2_per_tons_of_item,
 	tons_item * fc.co2_per_kg_per_item AS tons_co2_by_item,
 	co2_russia.co2 * 1000 AS tons_co2_tot_russia,
 	(((tons_item * fc.co2_per_kg_per_item) / (co2_russia.co2 * 1000)) * 100) AS impact
 FROM russia_food_co2 AS cfc
-INNER JOIN(
+RIGHT JOIN(
 	SELECT 
 		prodotto, 
 		kgco2_per_kgprodotto AS co2_per_kg_per_item
 	FROM food_co2
 	ORDER BY co2_per_kg_per_item DESC
-	LIMIT 5
+	LIMIT 3
 ) fc
 	ON cfc.item = fc.prodotto
-INNER JOIN(
+LEFT JOIN(
 	SELECT country_name,  co2 
 	FROM global_var
 	WHERE country_name LIKE 'Russia'
@@ -513,47 +425,26 @@ AS(
 	    AND item ~* 'sheep'
 		AND item ~* 'meat'--rende case-insensitive la ricerca
 		AND years = 2022
-
-	UNION ALL
-	
-	--%co2 da beef milk
-	SELECT area, 'Beef (dairy herd)' AS item, food_value  AS tons_item
-	FROM food
-	WHERE 
-	    area LIKE 'Japan' 
-	    AND item ~* 'cattle'  --rende case-insensitive la ricerca
-	    AND item ~* 'milk'
-		AND years = 2022
-
-	UNION ALL
-	
-	--%co2 da coffee
-	SELECT area, 'Coffee' AS item, food_value  AS tons_item
-	FROM food
-	WHERE 
-	    area LIKE 'Japan' 
-	    AND item ~* 'coffee'  --rende case-insensitive la ricerca
-		AND years = 2022
 )
 SELECT 
 	cfc.area, 
-	cfc.item, 
+	prodotto 
 	tons_item, 
 	fc.co2_per_kg_per_item AS tons_co2_per_tons_of_item,
 	tons_item * fc.co2_per_kg_per_item AS tons_co2_by_item,
 	co2_japan.co2 * 1000 AS tons_co2_tot_japan,
 	(((tons_item * fc.co2_per_kg_per_item) / (co2_japan.co2 * 1000)) * 100) AS impact
 FROM japan_food_co2 AS cfc
-INNER JOIN(
+RIGHT JOIN(
 	SELECT 
 		prodotto, 
 		kgco2_per_kgprodotto AS co2_per_kg_per_item
 	FROM food_co2
 	ORDER BY co2_per_kg_per_item DESC
-	LIMIT 5
+	LIMIT 3
 ) fc
 	ON cfc.item = fc.prodotto
-INNER JOIN(
+LEFT JOIN(
 	SELECT country_name,  co2 
 	FROM global_var
 	WHERE country_name LIKE 'Japan'
@@ -567,19 +458,273 @@ ORDER BY impact DESC;
 
 -- CHINA
 -- principale prodotto
-SELECT * 
-FROM food
-WHERE 
-    area LIKE 'China' 
-	AND years = 2022
-ORDER BY food_value DESC
-LIMIT 1;
--- %co2 principale prodotto
-SELECT * 
+SELECT 
+		area,
+		item,
+		food_value AS tons_item
+    FROM food
+    WHERE 
+        area LIKE 'China' 
+        AND years = 2022
+    ORDER BY food_value DESC
+    LIMIT 1;
+-- co2 principale prodotto
+SELECT  *
 FROM food_co2
 WHERE prodotto LIKE 'Egg%';
+-- impatto principale prodotto
+WITH primary_food
+AS(
+	SELECT 
+			area,
+			'Eggs' AS prodotto,
+			item,
+			food_value AS tons_item
+	    FROM food
+	    WHERE 
+	        area LIKE 'China' 
+	        AND years = 2022
+	    ORDER BY food_value DESC
+	    LIMIT 1
+)
+SELECT 
+	area, 
+	primary_food.prodotto, 
+	item, 
+	tons_item, 
+	kgco2_per_kgprodotto AS tons_co2_per_tons_of_item,
+	co2_china.co2 * 1000 AS tons_co2_tot_china,
+	(((tons_item * kgco2_per_kgprodotto) / (co2_china.co2 * 1000)) * 100) AS impact
+FROM
+	primary_food
+INNER JOIN(
+	SELECT  *
+	FROM food_co2
+	WHERE prodotto LIKE 'Egg%'
+) uovo
+	ON primary_food.prodotto = uovo.prodotto
+LEFT JOIN(
+	SELECT country_name,  co2 
+	FROM global_var
+	WHERE country_name LIKE 'China'
+) co2_china
+	ON primary_food.area = co2_china.country_name;
 
+-- USA
+-- principale prodotto
+SELECT 
+		area,
+		item,
+		food_value AS tons_item
+    FROM food
+    WHERE 
+        area LIKE 'United States of America' 
+        AND years = 2022
+    ORDER BY food_value DESC
+    LIMIT 1;
+-- co2 principale prodotto
+SELECT  *
+FROM food_co2
+WHERE prodotto ~* 'maize';
+-- impatto principale prodotto
+WITH primary_food
+AS(
+	SELECT 
+			area,
+			'Maize' AS prodotto,
+			item,
+			food_value AS tons_item
+	    FROM food
+	    WHERE 
+	        area LIKE 'United States of America' 
+	        AND years = 2022
+	    ORDER BY food_value DESC
+	    LIMIT 1
+)
+SELECT 
+	area, 
+	primary_food.prodotto, 
+	item, 
+	tons_item, 
+	kgco2_per_kgprodotto AS tons_co2_per_tons_of_item,
+	co2_usa.co2 * 1000 AS tons_co2_tot_usa,
+	(((tons_item * kgco2_per_kgprodotto) / (co2_usa.co2 * 1000)) * 100) AS impact
+FROM
+	primary_food
+INNER JOIN(
+	SELECT  *
+	FROM food_co2
+	WHERE prodotto ~* 'maize'
+) uovo
+	ON primary_food.prodotto = uovo.prodotto
+LEFT JOIN(
+	SELECT country_name,  co2 
+	FROM global_var
+	WHERE country_name LIKE 'United States of America'
+) co2_usa
+	ON primary_food.area = co2_usa.country_name;
 
+-- INDIA
+-- principale prodotto
+SELECT 
+		area,
+		item,
+		food_value AS tons_item
+    FROM food
+    WHERE 
+        area LIKE 'India' 
+        AND years = 2022
+    ORDER BY food_value DESC
+    LIMIT 1;
+-- co2 principale prodotto
+SELECT  *
+FROM food_co2
+WHERE prodotto ~* 'cane';
+-- impatto principale prodotto
+WITH primary_food
+AS(
+	SELECT 
+			area,
+			'Cane Sugar' AS prodotto,
+			item,
+			food_value AS tons_item
+	    FROM food
+	    WHERE 
+	        area LIKE 'India' 
+	        AND years = 2022
+	    ORDER BY food_value DESC
+	    LIMIT 1
+)
+SELECT 
+	area, 
+	primary_food.prodotto, 
+	item, 
+	tons_item, 
+	kgco2_per_kgprodotto AS tons_co2_per_tons_of_item,
+	co2_india.co2 * 1000 AS tons_co2_tot_india,
+	(((tons_item * kgco2_per_kgprodotto) / (co2_india.co2 * 1000)) * 100) AS impact
+FROM
+	primary_food
+INNER JOIN(
+	SELECT  *
+	FROM food_co2
+	WHERE prodotto ~* 'cane'
+) uovo
+	ON primary_food.prodotto = uovo.prodotto
+LEFT JOIN(
+	SELECT country_name,  co2 
+	FROM global_var
+	WHERE country_name LIKE 'India'
+) co2_india
+	ON primary_food.area = co2_india.country_name;
+
+-- RUSSIA
+-- principale prodotto
+SELECT 
+		area,
+		item,
+		food_value AS tons_item
+    FROM food
+    WHERE 
+        area LIKE 'Russia' 
+        AND years = 2022
+    ORDER BY food_value DESC
+    LIMIT 1;
+-- co2 principale prodotto
+SELECT  *
+FROM food_co2
+WHERE prodotto ~* 'wheat';
+-- impatto principale prodotto
+WITH primary_food
+AS(
+	SELECT 
+			area,
+			'Wheat & Rye' AS prodotto,
+			item,
+			food_value AS tons_item
+	    FROM food
+	    WHERE 
+	        area LIKE 'Russia' 
+	        AND years = 2022
+	    ORDER BY food_value DESC
+	    LIMIT 1
+)
+SELECT 
+	area, 
+	primary_food.prodotto, 
+	item, 
+	tons_item, 
+	kgco2_per_kgprodotto AS tons_co2_per_tons_of_item,
+	co2_russia.co2 * 1000 AS tons_co2_tot_russia,
+	(((tons_item * kgco2_per_kgprodotto) / (co2_russia.co2 * 1000)) * 100) AS impact
+FROM
+	primary_food
+INNER JOIN(
+	SELECT  *
+	FROM food_co2
+	WHERE prodotto ~* 'wheat'
+) uovo
+	ON primary_food.prodotto = uovo.prodotto
+LEFT JOIN(
+	SELECT country_name,  co2 
+	FROM global_var
+	WHERE country_name LIKE 'Russia'
+) co2_russia
+	ON primary_food.area = co2_russia.country_name;
+
+-- JAPAN
+-- principale prodotto
+SELECT 
+		area,
+		item,
+		food_value AS tons_item
+    FROM food
+    WHERE 
+        area LIKE 'Japan' 
+        AND years = 2022
+    ORDER BY food_value DESC
+    LIMIT 1;
+-- co2 principale prodotto
+SELECT  *
+FROM food_co2
+WHERE prodotto LIKE 'Egg%';
+-- impatto principale prodotto
+WITH primary_food
+AS(
+	SELECT 
+			area,
+			'Eggs' AS prodotto,
+			item,
+			food_value AS tons_item
+	    FROM food
+	    WHERE 
+	        area LIKE 'Japan' 
+	        AND years = 2022
+	    ORDER BY food_value DESC
+	    LIMIT 1
+)
+SELECT 
+	area, 
+	primary_food.prodotto, 
+	item, 
+	tons_item, 
+	kgco2_per_kgprodotto AS tons_co2_per_tons_of_item,
+	co2_japan.co2 * 1000 AS tons_co2_tot_japan,
+	(((tons_item * kgco2_per_kgprodotto) / (co2_japan.co2 * 1000)) * 100) AS impact
+FROM
+	primary_food
+INNER JOIN(
+	SELECT  *
+	FROM food_co2
+	WHERE prodotto LIKE 'Egg%'
+) uovo
+	ON primary_food.prodotto = uovo.prodotto
+LEFT JOIN(
+	SELECT country_name,  co2 
+	FROM global_var
+	WHERE country_name LIKE 'Japan'
+) co2_japan
+	ON primary_food.area = co2_japan.country_name;
 
 --- Andamento produzione di manzo nei 5 paesi nel tempo 
 --https://www.fao.org/faostat/en/#data/QCL
