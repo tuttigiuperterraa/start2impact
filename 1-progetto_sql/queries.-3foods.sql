@@ -85,7 +85,7 @@ CREATE TABLE food_co2(
 --- Ricerco i 5 paesi con maggior produzione di co2
 SELECT	country_name, 
 		population, 
-		density, co2 AS co2_tons
+		density, co2 AS co2_in_ktons
 FROM global_var
 WHERE 
 	co2 IS NOT NULL    -- mostro solo valori non nulli
@@ -256,10 +256,10 @@ AS(
 )
 SELECT	cfc.area, 
 		product, 
-		tons_item, 
+		tons_item , 
 		fc.co2_per_kg_per_item AS tons_co2_per_tons_of_item,
 		tons_item * fc.co2_per_kg_per_item AS tons_co2_by_item,
-		co2_china_2022.co2_in_tons,
+		co2_china_2022.co2_in_tons AS co2_tot_in_tons,
 		(((tons_item * fc.co2_per_kg_per_item) / (co2_china_2022.co2_in_tons)) * 100) AS impact -- calcolo l'impatto come %co2 prodotta da alimento / %co2 totale prodotta dal paese
 FROM china_food_co2 AS cfc
 RIGHT JOIN(
@@ -310,7 +310,9 @@ AS(
 	UNION ALL
 	
 	--%co2 da lamb
-	SELECT area, 'Lamb & Mutton' AS item, food_value  AS tons_item
+	SELECT	area, 
+			'Lamb & Mutton' AS item, 
+			food_value  AS tons_item
 	FROM food
 	WHERE 
 	    area LIKE 'United States of America' 
@@ -323,7 +325,7 @@ SELECT	ufc.area,
 		tons_item, 
 		fc.co2_per_kg_per_item AS tons_co2_per_tons_of_item,
 		tons_item * fc.co2_per_kg_per_item AS tons_co2_by_item,
-		co2_usa_2022.co2_in_tons,
+		co2_usa_2022.co2_in_tons AS co2_tot_in_tons,
 		(((tons_item * fc.co2_per_kg_per_item) / (co2_usa_2022.co2_in_tons)) * 100) AS impact
 FROM usa_food_co2 AS ufc
 RIGHT JOIN(
@@ -389,7 +391,7 @@ SELECT	cfc.area,
 		tons_item, 
 		fc.co2_per_kg_per_item AS tons_co2_per_tons_of_item,
 		tons_item * fc.co2_per_kg_per_item AS tons_co2_by_item,
-		co2_india_2022.co2_in_tons,
+		co2_india_2022.co2_in_tons AS co2_tot_in_tons,
 		(((tons_item * fc.co2_per_kg_per_item) / (co2_india_2022.co2_in_tons)) * 100) AS impact
 FROM india_food_co2 AS cfc
 RIGHT JOIN(
@@ -452,7 +454,7 @@ SELECT	cfc.area,
 		tons_item, 
 		fc.co2_per_kg_per_item AS tons_co2_per_tons_of_item,
 		tons_item * fc.co2_per_kg_per_item AS tons_co2_by_item,
-		co2_russia_2022.co2_in_tons AS tons_co2_tot_russia,
+		co2_russia_2022.co2_in_tons AS co2_tot_in_tons,
 		(((tons_item * fc.co2_per_kg_per_item) / (co2_russia_2022.co2_in_tons)) * 100) AS impact
 FROM russia_food_co2 AS cfc
 RIGHT JOIN(
@@ -518,7 +520,7 @@ SELECT	cfc.area,
 		tons_item, 
 		fc.co2_per_kg_per_item AS tons_co2_per_tons_of_item,
 		tons_item * fc.co2_per_kg_per_item AS tons_co2_by_item,
-		co2_japan_2022.co2_in_tons,
+		co2_japan_2022.co2_in_tons AS co2_tot_in_tons,
 		(((tons_item * fc.co2_per_kg_per_item) / (co2_japan_2022.co2_in_tons)) * 100) AS impact
 FROM japan_food_co2 AS cfc
 RIGHT JOIN(
@@ -580,7 +582,7 @@ SELECT	area,
 		item, 
 		tons_item, 
 		kgco2_per_kgproduct AS tons_co2_per_tons_of_item,
-		co2_china_2022.co2_in_tons,
+		co2_china_2022.co2_in_tons AS co2_tot_in_tons,
 		(((tons_item * kgco2_per_kgproduct) / (co2_china_2022.co2_in_tons)) * 100) AS impact
 FROM primary_food
 INNER JOIN(
@@ -634,7 +636,7 @@ SELECT	area,
 		item, 
 		tons_item, 
 		kgco2_per_kgproduct AS tons_co2_per_tons_of_item,
-		co2_usa_2022.co2_in_tons,
+		co2_usa_2022.co2_in_tons AS co2_tot_in_tons,
 		(((tons_item * kgco2_per_kgproduct) / (co2_usa_2022.co2_in_tons)) * 100) AS impact
 	FROM primary_food
 INNER JOIN(
@@ -655,8 +657,7 @@ LEFT JOIN(
 
 -- INDIA
 -- principale prodotto
-SELECT 
-		area,
+SELECT	area,
 		item,
 		food_value AS tons_item
     FROM food
@@ -688,7 +689,7 @@ SELECT	area,
 		item, 
 		tons_item, 
 		kgco2_per_kgproduct AS tons_co2_per_tons_of_item,
-		co2_india_2022.co2_in_tons,
+		co2_india_2022.co2_in_tons AS co2_tot_in_tons,
 		(((tons_item * kgco2_per_kgproduct) / (co2_india_2022.co2_in_tons)) * 100) AS impact
 FROM primary_food
 INNER JOIN(
@@ -741,7 +742,7 @@ SELECT	area,
 		item, 
 		tons_item, 
 		kgco2_per_kgproduct AS tons_co2_per_tons_of_item,
-		co2_russia_2022.co2_in_tons,
+		co2_russia_2022.co2_in_tons AS co2_tot_in_tons,
 		(((tons_item * kgco2_per_kgproduct) / (co2_russia_2022.co2_in_tons)) * 100) AS impact
 FROM primary_food
 INNER JOIN(
@@ -794,7 +795,7 @@ SELECT	area,
 		item, 
 		tons_item, 
 		kgco2_per_kgproduct AS tons_co2_per_tons_of_item,
-		co2_japan_2022.co2_in_tons,
+		co2_japan_2022.co2_in_tons AS co2_tot_in_tons,
 		(((tons_item * kgco2_per_kgproduct) / (co2_japan_2022.co2_in_tons)) * 100) AS impact
 FROM primary_food
 INNER JOIN(
